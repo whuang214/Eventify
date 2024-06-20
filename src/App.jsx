@@ -7,21 +7,63 @@ import {
   Typography,
   Paper,
   Link,
+  Snackbar,
+  Alert,
+  CircularProgress,
 } from "@mui/material";
 import { CalendarToday } from "@mui/icons-material";
 import axios from "axios";
 import "./App.css";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const App = () => {
   const [inputValue, setInputValue] = useState("");
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
   };
 
   const handleSubmit = async () => {
-    // Send a POST request to the backend
-    console.log(`Sending POST request with data: ${inputValue}`);
+    setIsLoading(true);
+    let data = inputValue.replace(/\n/g, "\\n");
+    console.log(data);
+    try {
+      const response = await axios.post(
+        `${API_URL}/createEvent`,
+        { InputText: data },
+        { responseType: "arraybuffer" }
+      );
+
+      const blob = new Blob([response.data], { type: "text/calendar" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "event.ics";
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      setSnackbarMessage("Download complete!");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error("Error downloading the file", error);
+      setSnackbarMessage("Download failed. Please try again.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
   return (
@@ -55,8 +97,13 @@ const App = () => {
             onChange={handleInputChange}
           />
           <Box textAlign="center" mt={2}>
-            <Button variant="contained" color="primary" onClick={handleSubmit}>
-              Create Event
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSubmit}
+              disabled={isLoading}
+            >
+              {isLoading ? <CircularProgress size={24} /> : "Create Event"}
             </Button>
           </Box>
         </Box>
@@ -78,6 +125,20 @@ const App = () => {
           </Typography>
         </Box>
       </Paper>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
