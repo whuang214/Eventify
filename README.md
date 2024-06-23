@@ -2,6 +2,8 @@
 
 Eventify Client is a React application that allows users to create calendar events using natural language input. This client application interacts with the [Eventify API](https://github.com/whuang214/eventify-api) to extract event details and generate ICS files that can be used to add events to calendar applications.
 
+![Screenshot](https://i.imgur.com/UNtYh53.jpeg)
+
 ### Features
 
 - User-friendly interface for inputting event details in natural language.
