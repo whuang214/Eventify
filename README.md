@@ -18,7 +18,7 @@ Eventify Client is a React application that allows users to create calendar even
 
 ### Usage
 
-1. Visit the Eventify Client [here](https://eventify-neon.vercel.app/).
+1. Visit the Eventify Website [here](https://eventify-neon.vercel.app/).
 2. Paste the event details in the input field using natural language.
 3. Click the "Create Event" button to download the ICS file.
 
